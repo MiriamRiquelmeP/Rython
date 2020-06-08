@@ -7,6 +7,12 @@ library(shinyWidgets)
 library(shinydashboardPlus)
 library(shinyjs)
 library(shinythemes)
+library(reticulate)
+library(tidyverse)
+library(EBImage)
+library(DiagrammeR)
+library(png)
+source("utils.R")
 
 ### HEADER ############ 
 header <- dashboardHeader(title = "Image classifier tool", 
@@ -26,27 +32,28 @@ sidebar <- dashboardSidebar(useShinyalert(),
                             sidebarMenu(
                               menuItem( 
                                 pickerInput(
-                                  inputId = "algorithm",
-                                  label = "Choose the method to train",
-                                  choices = list( "Kruskall-Wallice" = "opt1", "Mi tia la calva" = "opt2", "Knn" = "opt3"),
-                                  options = list(title = "Design"),
+                                  inputId = "option",
+                                  label = "Choose the option",
+                                  choices = list( "Manual train" = "opt1",
+                                                  "Train from model" = "opt2"),
+                                  options = list(title = "Option ..."),
                                   selected = NULL ) )
                             ),
                             sidebarMenu( 
                               menuItem(
-                                fluidRow(column(12, align = "center", offset=0, uiOutput("TrainClassifier"))))),
+                                fluidRow( column(12, align = "center", offset=0,
+                                                 uiOutput("ftv"),
+                                                 uiOutput("fitmodel") ) ) ) ),
                             sidebarMenu(
                               menuItem(
-                                fluidRow(column(12, align = "center", offset=0, uiOutput("ClassifyImage"))))),
-                            box(
-                            
+                                fluidRow(column(12, align = "center", offset=0,
+                                                uiOutput("algorithm") ) ) ) ),
+                            sidebarMenu(
                               menuItem(
-                                fluidRow(column(12, offset=0, uiOutput("save")))),
-                            
-                              menuItem(
-                                fluidRow(column(12, offset=0, uiOutput("load"))))
+                                fluidRow(column(12, align = "center", offset = 0,
+                                                uiOutput("savefvt"),
+                                                uiOutput("savefitmodel") ) ) ) )
                             )
-)
 
 ### BODY ###############
 body <- dashboardBody(
@@ -66,7 +73,16 @@ body <- dashboardBody(
         img(src = "dna-svg-small-13.gif", style = "width: 150px"),
         style = "z-index: 99"
       ), 
-      bsAlert("alert")
+      bsAlert("alert"),
+      fluidPage( fluidRow( 
+        column(width = 3,
+               grVizOutput("dg", height = "600px"),
+              textOutput("results")),
+      column(width=9, 
+             #plotOutput("imagen", click = "plot_click"),
+             uiOutput("image"),
+             textOutput("texto")
+      )))
 )
      
   
@@ -88,44 +104,51 @@ server <- function(input, output, session) {
   
   observeEvent(input$aboutButton, {
     shinyalert("Rython app 2020", "Authors:
-            Fernando Pérez Sanz",
+               User interface design: Miriam Riquelme Pérez
+            Algorithm development: Fernando Pérez Sanz",
                imageUrl = "dna-svg-small-13.gif", 
                imageWidth = 200, imageHeight = 100)})
 # InputFile #################
 output$Image <- renderUI({
-  fileInput("Image",
+  fileInput("imagenFile",
             "Enter your image",
             placeholder = "image.png",
-            accept = ".png")
+            accept = c(".png",".jpg") )
 })
 
-observeEvent(input$Image, {
-  imagen <- readPNG(input$Image$datapath)
+output$image <- renderUI({
+  if(input$option == "opt1"){
+    plotOutput("imagen", click = "plot_click")
+  } else{
+    plotOutput("imagen")
+  }
+    
 })
 
-# Train #############################
-output$TrainClassifier <- renderUI({
-  actionButton("train", "Train Classifier")
-})
-
-
-output$ClassifyImage <- renderUI({
-  actionButton("class", "Classify the image")
-})
-
-
-output$save <- renderUI({
-  actionButton("save", "Save your trainer")
-})
-
-
-output$load <- renderUI({
-  actionButton("load", "Load your trainer")
-})
-
-
-# generate reactive variable ###################
-
+shinyImageFile <- reactiveValues(shiny_img_origin = NULL)
+    
+renameUpload <- function(inFile) {
+    if(is.null(inFile))
+      return(NULL)
+    oldNames = inFile$datapath
+    newNames = file.path(dirname(inFile$datapath), inFile$name)
+    file.rename(from = oldNames, to = newNames)
+    inFile$datapath <- newNames
+    return(inFile$datapath)
+  }
+    
+observeEvent(input$option, {
+    validate(need(!is.null(input$imagenFile),""))
+    #validate(need(input$option,""))
+    shinyImageFile$shiny_img_origin <- shinyimg$new(renameUpload(input$imagenFile))
+    output$imagen <- renderPlot({shinyImageFile$shiny_img_origin$render()})
+  })        
+  
+output$texto <- renderText({
+    validate(need(input$plot_click, ""))
+        paste0(round(input$plot_click$x), " : ", round(input$plot_click$y))
+        
+    })
 
 
 }

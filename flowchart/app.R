@@ -66,15 +66,15 @@ node[fillcolor='@@4', fontcolor='@@17', style=filled, label='Load feature vector
 d
 node[fillcolor='@@5', fontcolor='@@18', style=filled, label='Load fitted model']
 e
-node[fillcolor='@@6', fontcolor='@@19', style=filled, label='Mark points']
+node[fillcolor='@@6', fontcolor='@@19', style='filled,dashed', label='Mark points']
 f
-node[fillcolor='@@7', fontcolor='@@20', style=filled, label='Generate feature vector']
+node[fillcolor='@@7', fontcolor='@@20', style='filled,dashed', label='Generate feature vector']
 g
 node[fillcolor='@@8', fontcolor='@@21', style=filled, label='Select algorithm']
 h
-node[fillcolor='@@9', fontcolor='@@22', style=filled, label='Train model']
+node[fillcolor='@@9', fontcolor='@@22', style='filled,dashed', label='Train model']
 i
-node[fillcolor='@@10', fontcolor='@@23', style=filled, label='Classify image']
+node[fillcolor='@@10', fontcolor='@@23', style='filled,dashed', label='Classify image']
 j
 node[fillcolor='@@11', fontcolor='@@24', style=filled, label='View results']
 k

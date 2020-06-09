@@ -1,5 +1,5 @@
 ##OJO antes de ejecutar esto hay que activar el entorno virtual
-## source ~/.virtualenvs/Rython/bin/activate
+## source ~/env/Rython/bin/activate
 library(reticulate)
 library(tidyverse)
 library(EBImage)

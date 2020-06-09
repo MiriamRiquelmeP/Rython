@@ -1,4 +1,4 @@
-#system("./activate.sh")
+#system("source ~/Rython/bin/activate")
 
 
 py_2_R_imageColor <- function(x){

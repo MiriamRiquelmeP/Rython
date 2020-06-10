@@ -12,8 +12,6 @@ library(ShinyImage)
 library(EBImage)
 library(DiagrammeR)
 library(png)
-#devtools::install_github('wleepang/shiny-directory-input')
-library(shinyDirectoryInput)
 source("utils.R")
 
 reticulate::use_virtualenv("~/Rython/")
@@ -34,6 +32,19 @@ sidebar <- dashboardSidebar(useShinyalert(),
                               menuItem(
                                 uiOutput("Image")
                               )),
+                            sidebarMenu(
+                              menuItem(
+                                numericInput("vacuolasize", 
+                                          label = HTML("Macrovacuole size (&mu;m)"),
+                                          value = 72, 
+                                          step=0.1)),
+                              menuItem(
+                                numericInput( "pixelsize",
+                                           label=HTML("Pixel size (&mu;m/pixel)"),
+                                           value = 4.5,
+                                           step=0.01)
+                              )
+                            ),
                             sidebarMenu(
                               menuItem( 
                                 pickerInput(
@@ -103,7 +114,7 @@ body <- dashboardBody(
       bsAlert("alert"),
       fluidPage( fluidRow( 
         column(width = 3,
-               sliderInput("thres", "Select threshold", min = 0, max = 5000, value=2000, step=10, width="100%") ,
+               uiOutput("Thres"),
                grVizOutput("dg", height = "600px")),
       column(width=9, 
              #plotOutput("imagen", click = "plot_click"),
@@ -151,6 +162,7 @@ fv <- reactiveValues(ok = FALSE)
 loadimage <- reactiveValues(ok = FALSE)
 manualTrain <- reactiveValues(ok = FALSE)
 selectAlgorithm <- reactiveValues(ok = FALSE)
+
 
 # mostrar flujograma #####
 output$dg <- renderGrViz({
@@ -370,6 +382,15 @@ stat <- reactiveValues(ok = FALSE)
 observeEvent(input$buttonResults,{
   statistics(imagenNew)
   stat$ok <- TRUE
+})
+
+output$Thres <- renderUI({
+  validate(need(isTRUE(stat$ok), ""))
+  pixelSize <- input$pixelsize
+  min <- imagenNew$minArea*(pixelSize^2)
+  max <- imagenNew$maxArea*(pixelSize^2)
+  value <- pi*(input$vacuolasize/2)^2
+  sliderInput("thres", "Select threshold", min =min , max = max, value=value, step=10, width="100%")
 })
 
 observeEvent(input$thres,{

@@ -12,6 +12,7 @@ library(ShinyImage)
 library(EBImage)
 library(DiagrammeR)
 library(png)
+library(shinyFiles)
 source("utils.R")
 
 reticulate::use_virtualenv("~/Rython/")
@@ -111,20 +112,25 @@ server <- function(input, output, session) {
             Algorithms implementation: Fernando Pérez Sanz",
                imageUrl = "dna-svg-small-13.gif", 
                imageWidth = 200, imageHeight = 100)})
-  
-uploadImage <- reactiveValues(ok = FALSE)
-shinyImageFile <- reactiveValues(shiny_img_origin = NULL)
-va <- reactiveValues(x=NULL, y=NULL)
-nova <- reactiveValues(x=NULL, y=NULL)
-counter <- 1
-train <- reactiveValues(ok=FALSE)
-fv <- reactiveValues(ok = FALSE)
-loadimage <- reactiveValues(ok = FALSE)
-manualTrain <- reactiveValues(ok = FALSE)
-selectAlgorithm <- reactiveValues(ok = FALSE)
-stat <- reactiveValues(ok = FALSE)
 
-# InputFile #################
+
+  # Variables reactivas ##################
+  uploadImage <- reactiveValues(ok = FALSE)
+  shinyImageFile <- reactiveValues(shiny_img_origin = NULL)
+  va <- reactiveValues(x = NULL, y = NULL)
+  nova <- reactiveValues(x = NULL, y = NULL)
+  counter <- 1
+  train <- reactiveValues(ok = FALSE)
+  fv <- reactiveValues(ok = FALSE)
+  loadimage <- reactiveValues(ok = FALSE)
+  manualTrain <- reactiveValues(ok = FALSE)
+  selectAlgorithm <- reactiveValues(ok = FALSE)
+  stat <- reactiveValues(ok = FALSE)
+  tr <- reactiveValues(ok = FALSE)
+  clf <- reactiveValues(ok = FALSE)
+  cargarmodelo <- reactiveValues(ok=FALSE)
+  
+# Upload Image #################
 output$Image <- renderUI({
   fileInput("imagenFile",
             "Upload image",
@@ -136,6 +142,7 @@ observeEvent(input$imagenFile,{
   uploadImage$ok <- TRUE ## valida que se ha cargado la imagen
 })
 
+# Elegir Opcion manual train / form model ################
 output$pickerOption <- renderUI({
   validate(need(isTRUE(uploadImage$ok), ""))
     pickerInput(
@@ -152,14 +159,22 @@ output$image <- renderUI({
   validate(need(!is.null(input$option), "" ) )
   if(input$option == "opt1"){
     manualTrain$ok <- TRUE
+    cargarmodelo$ok <- FALSE
+    stat$ok = FALSE
+    tr$ok = FALSE
     shinyalert("Mark points into vacuole object")
     plotOutput("imagen", click = "plot_click", height = "685px")
   } else{
     manualTrain$ok <- FALSE
+    fv$ok <- FALSE
+    clf$ok <- FALSE
+    stat$ok <- FALSE
+    tr$ok <- FALSE
     plotOutput("imagen", height = "685px")
   }
 })
 
+# renombra imagen para que se llame como original #########
 renameUpload <- function(inFile) {
     if(is.null(inFile))
       return(NULL)
@@ -170,6 +185,7 @@ renameUpload <- function(inFile) {
     return(inFile$datapath)
   }
 
+# renderiza Imagen ####################
 observeEvent(input$option, {
     validate(need(!is.null(input$imagenFile),""))
     #validate(need(input$option,""))
@@ -229,16 +245,23 @@ output$dg <- renderGrViz({
 # salvar modelo ############################
 output$savefitmodel <- renderUI({
   validate(need(isTRUE(tr$ok),""))
-  actionButton("saveModel", label = "Save model")
+  validate(need(input$filename!="", ""))
+  #actionButton("saveModel", label = "Save model")
+  shinyDirButton("saveModel", "Folder select", "Select a folder")
 })
+
 output$fileName <- renderUI({
   validate(need(isTRUE(tr$ok),""))
   textInput("filename", "Model name to save")
 })
 
+roots <- getVolumes()()[1]
+shinyDirChoose(input, "saveModel", roots = roots )
+
 observeEvent(input$saveModel,{
-  validate(need(!is.null(input$filename),"") )
-  path <- choose.dir(default = "/")
+  validate(need(input$filename!="","") )
+  validate(need(is.list(input$saveModel), ""))
+  path <- parseDirPath( roots, input$saveModel)
   file <- paste0(path,"/",input$filename)
   saveModel(imagenNew, file)
 })
@@ -252,7 +275,7 @@ output$Model <- renderUI({
              placeholder = "model")
  })
 
-cargarmodelo <- reactiveValues(ok=FALSE)
+
 observeEvent(input$filemodel, {
   filepath <- input$filemodel
   if(is.null(filepath)){return(NULL)}
@@ -323,7 +346,7 @@ output$algorithm <- renderUI({
     )
 })
 
-tr <- reactiveValues(ok=FALSE)
+
 # train model ###############################
 observeEvent(input$algoritmo,{
   validate(need(input$algoritmo,""))
@@ -339,7 +362,6 @@ output$botonClass <- renderUI({
   actionButton(inputId = "buttonClass", label="Classify")
 })
 
-clf <- reactiveValues(ok=FALSE)
 # clasifica imagen ######################
 observeEvent(input$buttonClass, {
   if(isTRUE(tr$ok)){

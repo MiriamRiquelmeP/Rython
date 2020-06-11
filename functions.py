@@ -53,6 +53,7 @@ class Imagen:
         self.bigPercent = None
         self.recoded = None
         self.masked = None
+        self.bigAreaSum = None
         
     def loadImage(self):
         self.loadimage = io.imread(self.image)
@@ -104,6 +105,8 @@ class Imagen:
         self.recoded = recoded
     def set_masked(self, masked):
         self.masked = masked
+    def set_bigAreaSum(self, bigAreaSum):
+        self.bigAreaSum = bigAreaSum
         
 def cargarImagen(imagen, filename):
     imagen.imageRGB = io.imread(filename)
@@ -222,7 +225,7 @@ def threshold(imagen, thr):
     npareas = np.array(imagen.areas)
     small = npareas[npareas <= threshold]
     big = npareas[npareas > threshold]
-    ratio = sum(small) / sum(big)
+    ratio = sum(big) / sum(small)
     ratio = ratio.__round__(3)
     bigAreas = np.nonzero(npareas < threshold)
     recoded = imagen.wtshed
@@ -243,6 +246,7 @@ def threshold(imagen, thr):
     imagen.set_bigMean(bigMean)
     imagen.set_bigPercent(bigPercent)
     imagen.set_recoded(recoded)
+    imagen.set_bigAreaSum(sum(recoAreas))
     return
     
 def maskImage(imagen):

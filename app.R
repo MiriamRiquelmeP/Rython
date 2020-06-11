@@ -33,15 +33,15 @@ sidebar <- dashboardSidebar(useShinyalert(),
                                 uiOutput("Image")
                               )),
                             sidebarMenu(
-                              menuItem(
-                                numericInput("vacuolasize", 
-                                          label = HTML("Macrovacuole size (&mu;m)"),
-                                          value = 72, 
-                                          step=0.1)),
+                              # menuItem(
+                              #   numericInput("vacuolasize", 
+                              #             label = HTML("Macrovacuole size (&mu;m)"),
+                              #             value = 72, 
+                              #             step=0.1)),
                               menuItem(
                                 numericInput( "pixelsize",
                                            label=HTML("Pixel size (&mu;m/pixel)"),
-                                           value = 4.5,
+                                           value = 0.2,
                                            step=0.01)
                               )
                             ),
@@ -372,13 +372,14 @@ observeEvent(input$buttonClass, {
   }
 })
 
+# render boton resultados ################
 output$botonResults <- renderUI({
   validate(need(isTRUE(clf$ok),""))
   actionButton(inputId = "buttonResults", label="View Results")
 })
 
 stat <- reactiveValues(ok = FALSE)
-
+# acciones al ejecutar estadísticas ##########
 observeEvent(input$buttonResults,{
   statistics(imagenNew)
   stat$ok <- TRUE
@@ -387,16 +388,17 @@ observeEvent(input$buttonResults,{
 output$Thres <- renderUI({
   validate(need(isTRUE(stat$ok), ""))
   pixelSize <- input$pixelsize
-  min <- imagenNew$minArea*(pixelSize^2)
-  max <- imagenNew$maxArea*(pixelSize^2)
-  value <- pi*(input$vacuolasize/2)^2
-  sliderInput("thres", "Select threshold", min =min , max = max, value=value, step=10, width="100%")
+  min <- imagenNew$minArea *(pixelSize^2)
+  max <- imagenNew$maxArea *(pixelSize^2)
+  value <- (max-min)/2
+  sliderInput("thres", HTML("Select Macro-area (standard value 144 &mu;m2)"), min =min , max = max, value=144, step=10, width="100%")
 })
 
 observeEvent(input$thres,{
   #validate(need(input$thres,""))
   validate(need(isTRUE(stat$ok),"" ) )
-  thr = input$thres # se pasará por según valor deslizador
+  pixelSize <- input$pixelsize
+  thr = input$thres / (pixelSize^2) # se pasará por según valor deslizador
   threshold(imagenNew, thr)
   imagenNew$ratio
   maskImage(imagenNew)
@@ -407,9 +409,13 @@ observeEvent(input$thres,{
 output$resultxt <- renderUI({
   validate(need(isTRUE(stat$ok),"" ) )
   validate(need(input$thres,"" ) )
-  texto <- paste(paste0("Mean big size: ",imagenNew$bigMean),
-                 paste0("Total area: ",imagenNew$totArea),
-                 paste0("Percent area big: ",imagenNew$bigPercent), sep ="<br/>")
+  conversion <- (input$pixelsize^2)
+  texto <- paste(paste0("Mean big size: ",round( (imagenNew$bigMean * conversion),2) ),
+                 paste0("Total area big vacuole: ",round((imagenNew$totArea * conversion),2) ),
+                 paste0("Percent area big: ",round(imagenNew$bigPercent*100,2)," %" ),
+                 paste0("Big/small ratio: ", imagenNew$ratio ),
+                 paste0("Big vacuole range area: ", round((imagenNew$bigRange[[1]] * conversion),2), " - ",
+                        round((imagenNew$bigRange[[2]] * conversion),2 )),sep ="<br/>")
   HTML(texto)
 })
 

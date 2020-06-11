@@ -30,62 +30,21 @@ sidebar <- dashboardSidebar(useShinyalert(),
                             useShinyjs(),
                             sidebarMenu(
                               menuItem(
-                                uiOutput("Image")
-                              )),
-                            sidebarMenu(
-                              # menuItem(
-                              #   numericInput("vacuolasize", 
-                              #             label = HTML("Macrovacuole size (&mu;m)"),
-                              #             value = 72, 
-                              #             step=0.1)),
-                              menuItem(
                                 numericInput( "pixelsize",
                                            label=HTML("Pixel size (&mu;m/pixel)"),
                                            value = 0.2,
-                                           step=0.01)
-                              )
-                            ),
-                            sidebarMenu(
-                              menuItem( 
-                                pickerInput(
-                                  inputId = "option",
-                                  label = "Choose the option",
-                                  choices = list( "Manual train" = "opt1",
-                                                  "Train from model" = "opt2"),
-                                  options = list(title = "Option ..."),
-                                  selected = NULL ) )
-                            ),
-                            # sidebarMenu( 
-                            #   menuItem(
-                            #     fluidRow( column(12, align = "center", offset=0,
-                            #                      #uiOutput("loadftv"),
-                            #                      uiOutput("loadfitmodel") ) ) ) ),
-                            sidebarMenu(
-                              menuItem(
-                                fluidRow(column(12, align = "center", offset=0,
-                                                uiOutput("algorithm") ) ) ) ),
-                            sidebarMenu(
-                              menuItem(
-                                fluidRow(
-                                  column(12, align="center", offset=0,
-                                         uiOutput("botonClass") )
-                                )
-                              )
+                                           step=0.01))
                             ),
                             sidebarMenu(
                               menuItem(
-                                fluidRow(
-                                  column(12, align="center", offset=0,
-                                         uiOutput("botonResults") )
-                                )
-                              )
-                            ),
+                                uiOutput("Image")
+                              )),
+                            sidebarMenu(menuItem(uiOutput("pickerOption"))),
+                            sidebarMenu(menuItem(uiOutput("Model"))),
+                            sidebarMenu(menuItem(uiOutput("algorithm"))),
+                            sidebarMenu(menuItem(uiOutput("botonClass"))),
+                            sidebarMenu(menuItem(uiOutput("botonResults"))),
                             tags$hr(style="border-color: white; margin-left: 10px; margin-right: 10px"),
-                             sidebarMenu(
-                               menuItem(
-                                 fluidRow(column(12, align = "center", offset = 0,
-                                                 uiOutput("Model")
-                                                 ) ) ) ),
                             sidebarMenu(
                               menuItem(
                                 fluidRow(column(12, align = "center", offset = 0,
@@ -153,6 +112,7 @@ server <- function(input, output, session) {
                imageUrl = "dna-svg-small-13.gif", 
                imageWidth = 200, imageHeight = 100)})
   
+uploadImage <- reactiveValues(ok = FALSE)
 shinyImageFile <- reactiveValues(shiny_img_origin = NULL)
 va <- reactiveValues(x=NULL, y=NULL)
 nova <- reactiveValues(x=NULL, y=NULL)
@@ -162,60 +122,34 @@ fv <- reactiveValues(ok = FALSE)
 loadimage <- reactiveValues(ok = FALSE)
 manualTrain <- reactiveValues(ok = FALSE)
 selectAlgorithm <- reactiveValues(ok = FALSE)
-
-
-# mostrar flujograma #####
-output$dg <- renderGrViz({
-  if(isTRUE(loadimage$ok)){ col1="'#3c8dbc'"; fcol1="'#ffffff'" }
-  if(isTRUE(manualTrain$ok)){col2="'#3c8dbc'"; fcol2="'#ffffff'"}
-  if(isTRUE(fv$ok)){col6="'#3c8dbc'"; fcol6="'#ffffff'";col7="'#3c8dbc'"; fcol7="'#ffffff'" }
-  if(isTRUE(tr$ok)){col8="'#3c8dbc'"; fcol8="'#ffffff'"; col9="'#3c8dbc'"; fcol9="'#ffffff'"}
-  if(isTRUE(clf$ok)){col10="'#3c8dbc'"; fcol10="'#ffffff'"}
-  if(isTRUE(stat$ok)){col11="'#3c8dbc'"; fcol11="'#ffffff'"}
-  if(input$option=="opt2"){col3="'#3c8dbc'"; fcol3="'#ffffff'"}
-  if(isTRUE(cargarmodelo$ok)){col5="'#3c8dbc'"; fcol5="'#ffffff'"}
-qq <- paste0(
-  "[1]: ",col1,
-  "\n[2]: ",col2,
-  "\n[3]: ",col3,
-  "\n[4]: ",col4,
-  "\n[5]: ",col5,
-  "\n[6]: ",col6,
-  "\n[7]: ",col7,
-  "\n[8]: ",col8,
-  "\n[9]: ",col9,
-  "\n[10]: ",col10,
-  "\n[11]: ",col11,
-  "\n[12]: ",col12,
-  "\n[13]: ",col13,
-  "\n[14]: ",fcol1,
-  "\n[15]: ",fcol2,
-  "\n[16]: ",fcol3,
-  "\n[17]: ",fcol4,
-  "\n[18]: ",fcol5,
-  "\n[19]: ",fcol6,
-  "\n[20]: ",fcol7,
-  "\n[21]: ",fcol8,
-  "\n[22]: ",fcol9,
-  "\n[23]: ",fcol10,
-  "\n[24]: ",fcol11,
-  "\n[25]: ",fcol12,
-  "\n[26]: ",fcol13
-)
-k <- c(kk, qq )  
-grViz(k, engine = "dot")
-   })
+stat <- reactiveValues(ok = FALSE)
 
 # InputFile #################
 output$Image <- renderUI({
   fileInput("imagenFile",
-            "Enter your image",
+            "Upload image",
             placeholder = "image.png",
             accept = c(".png",".jpg") )
 })
 
+observeEvent(input$imagenFile,{
+  uploadImage$ok <- TRUE ## valida que se ha cargado la imagen
+})
+
+output$pickerOption <- renderUI({
+  validate(need(isTRUE(uploadImage$ok), ""))
+    pickerInput(
+      inputId = "option",
+      label = "Choose the option",
+      choices = list( "Manual train" = "opt1",
+                      "Train from model" = "opt2"),
+      options = list(title = "Option ..."),
+      selected = NULL )
+})
+
 # render Contenedor de imagen ################
 output$image <- renderUI({
+  validate(need(!is.null(input$option), "" ) )
   if(input$option == "opt1"){
     manualTrain$ok <- TRUE
     shinyalert("Mark points into vacuole object")
@@ -245,7 +179,52 @@ observeEvent(input$option, {
     shinyImageFile$shiny_img_origin <- shinyimg$new(renameUpload(input$imagenFile))
     output$imagen <- renderPlot({shinyImageFile$shiny_img_origin$render()})
     loadimage$ok <- TRUE
+    clf$ok <- FALSE
   })   
+
+# mostrar flujograma #####
+output$dg <- renderGrViz({
+  validate(need(isTRUE(uploadImage$ok), ""))
+  validate(need(!is.null(input$option), ""))
+  if(isTRUE(loadimage$ok)){ col1="'#3c8dbc'"; fcol1="'#ffffff'" }
+  if(isTRUE(manualTrain$ok)){col2="'#3c8dbc'"; fcol2="'#ffffff'"}
+  if(isTRUE(fv$ok)){col6="'#3c8dbc'"; fcol6="'#ffffff'";col7="'#3c8dbc'"; fcol7="'#ffffff'" }
+  if(isTRUE(tr$ok)){col8="'#3c8dbc'"; fcol8="'#ffffff'"; col9="'#3c8dbc'"; fcol9="'#ffffff'"}
+  if(isTRUE(clf$ok)){col10="'#3c8dbc'"; fcol10="'#ffffff'"}
+  if(isTRUE(stat$ok)){col11="'#3c8dbc'"; fcol11="'#ffffff'"}
+  if(input$option=="opt2"){col3="'#3c8dbc'"; fcol3="'#ffffff'"}
+  if(isTRUE(cargarmodelo$ok)){col5="'#3c8dbc'"; fcol5="'#ffffff'"}
+  qq <- paste0(
+    "[1]: ",col1,
+    "\n[2]: ",col2,
+    "\n[3]: ",col3,
+    "\n[4]: ",col4,
+    "\n[5]: ",col5,
+    "\n[6]: ",col6,
+    "\n[7]: ",col7,
+    "\n[8]: ",col8,
+    "\n[9]: ",col9,
+    "\n[10]: ",col10,
+    "\n[11]: ",col11,
+    "\n[12]: ",col12,
+    "\n[13]: ",col13,
+    "\n[14]: ",fcol1,
+    "\n[15]: ",fcol2,
+    "\n[16]: ",fcol3,
+    "\n[17]: ",fcol4,
+    "\n[18]: ",fcol5,
+    "\n[19]: ",fcol6,
+    "\n[20]: ",fcol7,
+    "\n[21]: ",fcol8,
+    "\n[22]: ",fcol9,
+    "\n[23]: ",fcol10,
+    "\n[24]: ",fcol11,
+    "\n[25]: ",fcol12,
+    "\n[26]: ",fcol13
+  )
+  k <- c(kk, qq )  
+  grViz(k, engine = "dot")
+})
 
 # salvar modelo ############################
 output$savefitmodel <- renderUI({
@@ -378,7 +357,7 @@ output$botonResults <- renderUI({
   actionButton(inputId = "buttonResults", label="View Results")
 })
 
-stat <- reactiveValues(ok = FALSE)
+
 # acciones al ejecutar estadísticas ##########
 observeEvent(input$buttonResults,{
   statistics(imagenNew)
@@ -411,7 +390,7 @@ output$resultxt <- renderUI({
   validate(need(input$thres,"" ) )
   conversion <- (input$pixelsize^2)
   texto <- paste(paste0("Mean big size: ",round( (imagenNew$bigMean * conversion),2) ),
-                 paste0("Total area big vacuole: ",round((imagenNew$totArea * conversion),2) ),
+                 paste0("Total area big vacuole: ",round((imagenNew$bigAreaSum * conversion),2) ),
                  paste0("Percent area big: ",round(imagenNew$bigPercent*100,2)," %" ),
                  paste0("Big/small ratio: ", imagenNew$ratio ),
                  paste0("Big vacuole range area: ", round((imagenNew$bigRange[[1]] * conversion),2), " - ",

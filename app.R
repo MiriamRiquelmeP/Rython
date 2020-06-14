@@ -29,18 +29,22 @@ header <- dashboardHeader(title = "Image classifier tool",
 ### SIDEBAR ##########
 sidebar <- dashboardSidebar(useShinyalert(),
                             useShinyjs(),
+                            # selector tamaño pixel
                             sidebarMenu(
                               menuItem(
                                 numericInput( "pixelsize",
                                            label=HTML("Pixel size (&mu;m/pixel)"),
                                            value = 0.2,
-                                           step=0.01))
-                            ),
-                            sidebarMenu(
-                              menuItem(
-                                uiOutput("Image")
-                              )),
-                            sidebarMenu(menuItem(uiOutput("pickerOption"))),
+                                           step=0.01))),
+                            # dialogo upload imagen
+                            fluidRow(
+                                column(width=10,uiOutput("Image")),
+                                column(width=2, htmlOutput("imgbola"))),
+                            # selector opciones
+                            fluidRow(
+                                column(width=10, uiOutput("pickerOption")),
+                                column(width=2, htmlOutput("optionbola"))),
+                            
                             sidebarMenu(menuItem(uiOutput("Model"))),
                             sidebarMenu(menuItem(uiOutput("algorithm"))),
                             sidebarMenu(menuItem(uiOutput("botonClass"))),
@@ -135,12 +139,20 @@ output$Image <- renderUI({
   fileInput("imagenFile",
             "Upload image",
             placeholder = "image.png",
-            accept = c(".png",".jpg") )
+            accept = c(".png",".jpg"))
 })
 
 observeEvent(input$imagenFile,{
   uploadImage$ok <- TRUE ## valida que se ha cargado la imagen
 })
+
+output$imgbola <- renderUI({
+  if(!isTRUE(uploadImage$ok)){
+    img(src="puntoRojo.svg", style ="width: 80%; margin-top: 50px")}
+  else{
+    img(src="puntoVerde.svg", style ="width: 80%; margin-top: 50px")}
+})
+
 
 # Elegir Opcion manual train / form model ################
 output$pickerOption <- renderUI({
@@ -152,6 +164,15 @@ output$pickerOption <- renderUI({
                       "Train from model" = "opt2"),
       options = list(title = "Option ..."),
       selected = NULL )
+})
+
+output$optionbola <- renderUI({
+  validate(need(isTRUE(uploadImage$ok), ""))
+  validate(need(input$option=="" | input$option!="", ""))
+  if(input$option==""){
+    img(src="puntoRojo.svg", style ="width: 80%; margin-top: 50px")}
+  else{
+    img(src="puntoVerde.svg", style ="width: 80%; margin-top: 50px")}
 })
 
 # render Contenedor de imagen ################

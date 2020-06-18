@@ -150,7 +150,42 @@ def trainKnn(imagen):
     imagen.set_clf(clf)
     return(clf)
 
+def trainSVM(imagen):
+    fvp = imagen.fvp
+    NUM = imagen.NUM
+    clf = svm.NuSVC(kernel="linear")
+    labels = [1] * NUM + [0] * NUM
+    clf.fit(fvp, labels)
+    imagen.set_clf(clf)
+    return clf
 
+def trainRandomForest(imagen):
+    fvp = imagen.fvp
+    NUM = imagen.NUM
+    clf = RandomForestClassifier(random_state=0, n_estimators=10)
+    labels = [1] * NUM + [0] * NUM
+    clf.fit(fvp, labels)
+    imagen.set_clf(clf)
+    return clf
+
+def trainNeuralNetwork(imagen):
+    fvp = imagen.fvp
+    NUM = imagen.NUM
+    clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
+    labels = [1] * NUM + [0] * NUM
+    clf.fit(fvp, labels)
+    imagen.set_clf(clf)
+    return clf
+
+def trainNaiveBayes(imagen):
+    fvp = imagen.fvp
+    NUM = imagen.NUM
+    clf = GaussianNB()
+    labels = [1] * NUM + [0] * NUM
+    clf.fit(fvp, labels)
+    imagen.set_clf(clf)
+    return clf
+    
 def parallelizeFunction(param):
     i = param[0]
     j = param[1]

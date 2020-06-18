@@ -4,7 +4,7 @@ library(reticulate)
 library(tidyverse)
 library(EBImage)
 
-reticulate::use_virtualenv("~/Rython/")
+reticulate::use_virtualenv("~/.virtualenvs/Rython/")
 source_python("functions.py", convert = TRUE)
 
 #Crear instancia clase imagen
@@ -39,6 +39,7 @@ fvp = computeFeatureVector(imagenNew)
 
 #crear clasificador
 clf = trainKnn(imagenNew)
+clf = trainSVM(imagenNew)
 
 #Clasificar imagen
 B = classImage(imagenNew)

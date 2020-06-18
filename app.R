@@ -15,7 +15,8 @@ library(png)
 library(shinyFiles)
 source("utils.R")
 
-reticulate::use_virtualenv("~/Rython/")
+#reticulate::use_python("/home/fpsanz/Rython/bin/python3", required = FALSE)
+#reticulate::use_virtualenv("/home/fpsanz/Rython")
 source_python("functions.py", convert = TRUE)
 
 ### HEADER ############ 
@@ -361,6 +362,7 @@ output$algorithm <- renderUI({
       choices = list("Knn" = "knn",
                      "SVM" = "svm",
                      "Bayes" = "bayes",
+                     "Random Forest" = "rf",
                      "ANN" = "ann"),
       options = list(title = "Option ..."),
       selected = NULL
@@ -374,7 +376,19 @@ observeEvent(input$algoritmo,{
   if( input$algoritmo == "knn"){
     train = trainKnn(imagenNew)
     tr$ok <- TRUE
-  }
+  } else if(input$algoritmo =="svm"){
+    train = trainSVM(imagenNew)
+    tr$ok <- TRUE
+  } else if(input$algoritmo =="bayes"){
+    train = trainNaiveBayes(imagenNew)
+    tr$ok <- TRUE
+  } else if(input$algoritmo =="rf"){
+    train = trainRandomForest(imagenNew)
+    tr$ok <- TRUE
+  } else if(input$algoritmo =="ann"){
+    train = trainNeuralNetwork(imagenNew)
+    tr$ok <- TRUE
+    }
 })
 
 # render boton class #######################

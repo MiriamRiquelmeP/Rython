@@ -1,11 +1,15 @@
 ##OJO antes de ejecutar esto hay que activar el entorno virtual
 ## source ~/env/Rython/bin/activate
+if( any(grepl("package:reticulate" ,search()))){detach("package:reticulate")}
+Sys.setenv(RETICULATE_PYTHON="/home/fpsanz/Rython/bin/python3")
 library(reticulate)
 library(tidyverse)
 library(EBImage)
 
 reticulate::use_virtualenv("~/.virtualenvs/Rython/")
+use_python("/usr/bin/python3")
 source_python("functions.py", convert = TRUE)
+
 
 #Crear instancia clase imagen
 imagenNew <- Imagen(NULL)
@@ -40,6 +44,7 @@ fvp = computeFeatureVector(imagenNew)
 #crear clasificador
 clf = trainKnn(imagenNew)
 clf = trainSVM(imagenNew)
+
 
 #Clasificar imagen
 B = classImage(imagenNew)

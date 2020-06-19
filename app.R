@@ -1,3 +1,5 @@
+if( any(grepl("package:reticulate" ,search()))){detach("package:reticulate")}
+Sys.setenv(RETICULATE_PYTHON="/home/fpsanz/Rython/bin/python3")
 library(shiny)
 library(shinydashboard)
 library(shinyalert)
@@ -18,7 +20,7 @@ source("utils.R")
 #reticulate::use_python("/home/fpsanz/Rython/bin/python3", required = FALSE)
 #reticulate::use_virtualenv("/home/fpsanz/Rython")
 source_python("functions.py", convert = TRUE)
-
+counter <- 1
 ### HEADER ############ 
 header <- dashboardHeader(title = "Image classifier tool", 
                           titleWidth = 300, 
@@ -124,7 +126,6 @@ server <- function(input, output, session) {
   shinyImageFile <- reactiveValues(shiny_img_origin = NULL)
   va <- reactiveValues(x = NULL, y = NULL)
   nova <- reactiveValues(x = NULL, y = NULL)
-  counter <- 1
   train <- reactiveValues(ok = FALSE)
   fv <- reactiveValues(ok = FALSE)
   loadimage <- reactiveValues(ok = FALSE)
@@ -154,7 +155,6 @@ output$imgbola <- renderUI({
     img(src="puntoVerde.svg", style ="width: 80%; margin-top: 50px")}
 })
 
-
 # Elegir Opcion manual train / form model ################
 output$pickerOption <- renderUI({
   validate(need(isTRUE(uploadImage$ok), ""))
@@ -165,6 +165,17 @@ output$pickerOption <- renderUI({
                       "Train from model" = "opt2"),
       options = list(title = "Option ..."),
       selected = NULL )
+})
+
+## acciones al volver al reseleccionar option ###################
+observeEvent(input$option,{
+  counter <<- 1
+  imagenNew <- Imagen(NULL)
+  imagenNew$image <- renameUpload(input$imagenFile)
+  imagenNew$set_NUM(10)
+  va$x <- va$y <- nova$x <- nova$y <- NULL
+  fv$ok <- FALSE
+  cargarImagen(imagenNew, imagenNew$image)
 })
 
 output$optionbola <- renderUI({
@@ -208,7 +219,7 @@ renameUpload <- function(inFile) {
   }
 
 # renderiza Imagen ####################
-observeEvent(input$option, {
+observeEvent(input$imagenFile, {
     validate(need(!is.null(input$imagenFile),""))
     #validate(need(input$option,""))
     imagenNew$image <- renameUpload(input$imagenFile)
@@ -268,6 +279,7 @@ output$dg <- renderGrViz({
 output$savefitmodel <- renderUI({
   validate(need(isTRUE(tr$ok),""))
   validate(need(input$filename!="", ""))
+
   #actionButton("saveModel", label = "Save model")
   shinyDirButton("saveModel", "Folder select", "Select a folder")
 })
@@ -321,6 +333,7 @@ observeEvent(input$plot_click,{
       nova$y <- append(nova$y, input$plot_click$y)
       }
     if(counter == imagenNew$NUM){
+      fv$ok <- FALSE
       shinyalert("mark non vacuole points")
     }
     counter <<- counter + 1

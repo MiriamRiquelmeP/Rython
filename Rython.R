@@ -6,14 +6,14 @@ library(reticulate)
 library(tidyverse)
 library(EBImage)
 
-reticulate::use_virtualenv("~/.virtualenvs/Rython/")
-use_python("/usr/bin/python3")
+#reticulate::use_virtualenv("~/.virtualenvs/Rython/")
+#use_python("/usr/bin/python3")
 source_python("functions.py", convert = TRUE)
 
 
 #Crear instancia clase imagen
 imagenNew <- Imagen(NULL)
-imagenNew$image <- "./images/mini.jpg"
+imagenNew$image <- "./images/01_X100.tif"
 imagenNew$set_NUM(10)
 
 #leer imagen en R directamente

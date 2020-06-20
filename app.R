@@ -149,7 +149,7 @@ output$Image <- renderUI({
   fileInput("imagenFile",
             "Upload image",
             placeholder = "image.png",
-            accept = c(".png",".jpg"))
+            accept = c(".png",".jpg", ".tif"))
 })
 
 observeEvent(input$imagenFile,{

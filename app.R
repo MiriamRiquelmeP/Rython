@@ -1,5 +1,5 @@
 if( any(grepl("package:reticulate" ,search()))){detach("package:reticulate")}
-Sys.setenv(RETICULATE_PYTHON="/home/fpsanz/Rython/bin/python3")
+Sys.setenv(RETICULATE_PYTHON="~/Rython/bin/python3")
 library(shiny)
 library(shinydashboard)
 library(shinyalert)

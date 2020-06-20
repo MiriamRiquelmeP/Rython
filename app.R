@@ -47,11 +47,19 @@ sidebar <- dashboardSidebar(useShinyalert(),
                             fluidRow(
                                 column(width=10, uiOutput("pickerOption")),
                                 column(width=2, htmlOutput("optionbola"))),
-                            
-                            sidebarMenu(menuItem(uiOutput("Model"))),
-                            sidebarMenu(menuItem(uiOutput("algorithm"))),
-                            sidebarMenu(menuItem(uiOutput("botonClass"))),
-                            sidebarMenu(menuItem(uiOutput("botonResults"))),
+                            # Dialogo cargar modelo
+                            fluidRow(column(width=10,uiOutput("Model")),
+                                     column(width=2, htmlOutput("loadmodelbola"))),
+                            # Selector de algoritmo
+                            fluidRow(column(width=10,uiOutput("algorithm")),
+                                     column(width=2,htmlOutput("algorithmbola"))),
+                            # Botón clasificar
+                            fluidRow(column(width=10,uiOutput("botonClass")),
+                                     column(width=2, htmlOutput("classbola"))),
+                            # Botón ver resultados
+                            fluidRow(column(width=10,uiOutput("botonResults")),
+                                     column(width = 2, htmlOutput("resultbola"))),
+                            # Diálogo guardar modelo
                             tags$hr(style="border-color: white; margin-left: 10px; margin-right: 10px"),
                             sidebarMenu(
                               menuItem(
@@ -299,7 +307,7 @@ observeEvent(input$saveModel,{
   file <- paste0(path,"/",input$filename)
   saveModel(imagenNew, file)
 })
-######    ######       #####
+## ..................... ##########
 
 # cargar modelo ###########################
 output$Model <- renderUI({
@@ -320,8 +328,16 @@ observeEvent(input$filemodel, {
   clf$ok <- TRUE #
   BR <- py_2_R_imageBW(B)
   output$imagen <- renderPlot({display(BR, method = "raster")})
-  
 })
+
+output$loadmodelbola <- renderUI({
+  validate(need(input$option=="opt2", ""))
+  if(!isTRUE(cargarmodelo$ok)){
+    img(src="puntoRojo.svg", style ="width: 80%; margin-top: 50px")}
+  else{
+    img(src="puntoVerde.svg", style ="width: 80%; margin-top: 50px")}
+})
+# ..................... #################
 
 # marcar puntos de entrenamiento manual ##############
 observeEvent(input$plot_click,{
@@ -382,7 +398,6 @@ output$algorithm <- renderUI({
     )
 })
 
-
 # train model ###############################
 observeEvent(input$algoritmo,{
   validate(need(input$algoritmo,""))
@@ -404,10 +419,18 @@ observeEvent(input$algoritmo,{
     }
 })
 
+output$algorithmbola <- renderUI({
+  validate(need(isTRUE(fv$ok), ""))
+  if(!isTRUE(tr$ok)){
+    img(src="puntoRojo.svg", style ="width: 80%; margin-top: 50px")}
+  else{
+    img(src="puntoVerde.svg", style ="width: 80%; margin-top: 50px")}
+})
+
 # render boton class #######################
 output$botonClass <- renderUI({
   validate(need(isTRUE(tr$ok),""))
-  actionButton(inputId = "buttonClass", label="Classify")
+  actionButton(inputId = "buttonClass", label="Classify", width = "70%")
 })
 
 # clasifica imagen ######################
@@ -420,11 +443,17 @@ observeEvent(input$buttonClass, {
     output$imagen <- renderPlot({display(BR, method = "raster")})
   }
 })
-
+output$classbola <- renderUI({
+  validate(need(isTRUE(tr$ok), ""))
+  if(!isTRUE(clf$ok)){
+    img(src="puntoRojo.svg", style ="width: 80%; margin-top: 15px")}
+  else{
+    img(src="puntoVerde.svg", style ="width: 80%; margin-top: 15px")}
+})
 # render boton resultados ################
 output$botonResults <- renderUI({
   validate(need(isTRUE(clf$ok),""))
-  actionButton(inputId = "buttonResults", label="View Results")
+  actionButton(inputId = "buttonResults", label="View Results", width = "70%")
 })
 
 
@@ -432,6 +461,13 @@ output$botonResults <- renderUI({
 observeEvent(input$buttonResults,{
   statistics(imagenNew)
   stat$ok <- TRUE
+})
+output$resultbola <- renderUI({
+  validate(need(isTRUE(clf$ok),""))
+  if(!isTRUE(stat$ok)){
+    img(src="puntoRojo.svg", style ="width: 80%; margin-top: 15px")}
+  else{
+    img(src="puntoVerde.svg", style ="width: 80%; margin-top: 15px")}
 })
 
 output$Thres <- renderUI({

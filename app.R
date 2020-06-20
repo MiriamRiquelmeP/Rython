@@ -122,11 +122,16 @@ server <- function(input, output, session) {
   imagenNew <- Imagen(NULL)
   
   observeEvent(input$aboutButton, {
-    shinyalert("Rython app 2020", "Authors:
-               User interface design: Miriam Riquelme Pérez
-            Algorithms implementation: Fernando Pérez Sanz",
+    shinyalert("Rython app 2020", HTML("Authors:<br>
+               UI designer: Miriam Riquelme Pérez <a href='https://www.linkedin.com/in/miriam-riquelme-perez/' target='_blank'>
+               <img src='linkedin_little.svg'>
+               </a> <a href='mailto:miriam.riquelmep@gmail.com'>
+               <img src='email.svg'></a><br>
+            Programming: Fernando Pérez Sanz <a href='https://www.linkedin.com/in/fernandoperez72/' target='_blank'> <img src='linkedin_little.svg'> 
+            </a> <a href='mailto:fernando.perez@ffis.es'> 
+                                       <img src='email.svg'></a>"),
                imageUrl = "dna-svg-small-13.gif", 
-               imageWidth = 200, imageHeight = 100)})
+               imageWidth = 200, imageHeight = 100, html=TRUE)})
 
 
   # Variables reactivas ##################

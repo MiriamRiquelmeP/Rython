@@ -1,4 +1,4 @@
-# Intrucciones de instalación de Rython
+# Instrucciones de instalación de Rython
 
 ## Instalar entorno virtual
 

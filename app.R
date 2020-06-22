@@ -35,10 +35,13 @@ sidebar <- dashboardSidebar(useShinyalert(),
                             # selector tamaño pixel
                             sidebarMenu(
                               menuItem(
-                                numericInput( "pixelsize",
-                                           label=HTML("Pixel size (&mu;m/pixel)"),
-                                           value = 0.2,
-                                           step=0.01))),
+                                # numericInput( "pixelsize",
+                                #            label=HTML("Pixel size (&mu;m/pixel)"),
+                                #            value = 0.2,
+                                #            step=0.01)
+                                selectInput("pixelsize", "Image magnification", selected = NULL,
+                                            choices = c("10x"="0.454", "20x"="0.227", "40x"="0.114") ) 
+                                )),
                             # dialogo upload imagen
                             fluidRow(
                                 column(width=10,uiOutput("Image")),
@@ -477,7 +480,7 @@ output$resultbola <- renderUI({
 
 output$Thres <- renderUI({
   validate(need(isTRUE(stat$ok), ""))
-  pixelSize <- input$pixelsize
+  pixelSize <- as.numeric(input$pixelsize)
   min <- imagenNew$minArea *(pixelSize^2)
   max <- imagenNew$maxArea *(pixelSize^2)
   value <- (max-min)/2
@@ -487,7 +490,7 @@ output$Thres <- renderUI({
 observeEvent(input$thres,{
   #validate(need(input$thres,""))
   validate(need(isTRUE(stat$ok),"" ) )
-  pixelSize <- input$pixelsize
+  pixelSize <- as.numeric(input$pixelsize)
   thr = input$thres / (pixelSize^2) # se pasará por según valor deslizador
   threshold(imagenNew, thr)
   imagenNew$ratio
@@ -499,7 +502,7 @@ observeEvent(input$thres,{
 output$resultxt <- renderUI({
   validate(need(isTRUE(stat$ok),"" ) )
   validate(need(input$thres,"" ) )
-  conversion <- (input$pixelsize^2)
+  conversion <- (as.numeric(input$pixelsize)^2)
   texto <- paste(paste0("Mean big size: ",round( (imagenNew$bigMean * conversion),2) ),
                  paste0("Total area big vacuole: ",round((imagenNew$bigAreaSum * conversion),2) ),
                  paste0("Percent area big: ",round(imagenNew$bigPercent*100,2)," %" ),

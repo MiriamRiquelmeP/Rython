@@ -9,11 +9,11 @@ library(EBImage)
 #reticulate::use_virtualenv("~/.virtualenvs/Rython/")
 #use_python("/usr/bin/python3")
 source_python("functions.py", convert = TRUE)
-
+source("utils.R")
 
 #Crear instancia clase imagen
 imagenNew <- Imagen(NULL)
-imagenNew$image <- "./images/01_X100.tif"
+imagenNew$image <- "./images/01_X100_05.jpg"
 imagenNew$set_NUM(10)
 
 #leer imagen en R directamente

@@ -107,7 +107,13 @@ class Imagen:
         self.masked = masked
     def set_bigAreaSum(self, bigAreaSum):
         self.bigAreaSum = bigAreaSum
-        
+
+def _getThreads():
+    if sys.platform == 'win32':
+        return (int)(os.environ['NUMBER_OF_PROCESSORS'])
+    else:
+        return (int)(os.popen('grep -c cores /proc/cpuinfo').read())
+     
 def cargarImagen(imagen, filename):
     imagen.imageRGB = io.imread(filename)
     imagen.imageCIE = color.rgb2lab(imagen.imageRGB)
@@ -202,7 +208,8 @@ def classImage(imagen):
     a = range(imagen.imageRGB.shape[0])
     b = range(imagen.imageRGB.shape[1])
     paramlist = list(itertools.product(a, b))
-    pool = mp.Pool()
+    numCores = math.ceil(_getThreads()/2)
+    pool = mp.Pool(processes=numCores)
     res = pool.map(parallelizeFunction, paramlist)
     A = np.array(res)
     B = np.reshape(A, (imagen.imageRGB.shape[0], imagen.imageRGB.shape[1]))

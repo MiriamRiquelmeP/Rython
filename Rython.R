@@ -13,7 +13,7 @@ source("utils.R")
 
 #Crear instancia clase imagen
 imagenNew <- Imagen(NULL)
-imagenNew$image <- "./images/01_X100_05.jpg"
+imagenNew$image <- "./images/01_X100.jpg"
 imagenNew$set_NUM(10)
 
 #leer imagen en R directamente
@@ -44,6 +44,16 @@ fvp = computeFeatureVector(imagenNew)
 #crear clasificador
 clf = trainKnn(imagenNew)
 clf = trainSVM(imagenNew)
+
+
+#load model
+imagenNew$clf = loadModel("/datos/repos/visionGUI/knnModel")
+imagen = imagenNew
+im = np.dstack( (imagen.imageRGB, imagen.imageCIE) )
+im = np.reshape(im, ((imagen.imageRGB.shape[0] * imagen.imageRGB.shape[1]), 6))
+clf = imagen.clf
+B = clf.predict(im)
+B = np.reshape(B, (imagen.imageRGB.shape[0], imagen.imageRGB.shape[1]) )
 
 
 #Clasificar imagen

@@ -13,7 +13,6 @@ import cv2
 import sys
 import pickle
 from PIL import Image
-from skimage import io, filters, data, morphology, color
 from sklearn.neighbors import NearestCentroid
 from skimage import measure, util
 import matplotlib.patches as patches
@@ -34,6 +33,7 @@ class Imagen:
         self.y = None
         self.fvp = None
         self.clf = None
+        self.model = None
         self.B = None
         self.label = None
         self.properties = None
@@ -66,6 +66,8 @@ class Imagen:
         self.fvp = fvp
     def set_clf(self, clf):
         self.clf = clf
+    def set_model(self, model):
+        self.model = model
     def set_imageClass(self, B):
         self.B = B
         self.B = np.where(self.B == 1, 255, self.B)
@@ -290,7 +292,7 @@ def threshold(imagen, thr):
     imagen.set_recoded(recoded)
     imagen.set_bigAreaSum(sum(recoAreas))
     return
-    
+
 def maskImage(imagen):
     mask = imagen.recoded == 0
     masked = (imagen.imageRGB).copy()
@@ -308,7 +310,13 @@ def loadModel(filename):
         clf = pickle.load(fileToOpen)
     return(clf)
 
-
+def classModel(imagen):
+    im = np.dstack((imagen.imageRGB, imagen.imageCIE))
+    im = np.reshape(im, ((imagen.imageRGB.shape[0] * imagen.imageRGB.shape[1]), 6))
+    clf = imagen.clf
+    B = clf.predict(im)
+    B = np.reshape(B, (imagen.imageRGB.shape[0], imagen.imageRGB.shape[1]) )
+    return(B)
 
 
 

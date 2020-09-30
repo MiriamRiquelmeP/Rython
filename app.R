@@ -16,6 +16,7 @@ library(DiagrammeR)
 library(png)
 library(shinyFiles)
 source("utils.R")
+options(shiny.maxRequestSize = 3000*1024^2)
 
 #reticulate::use_python("/home/fpsanz/Rython/bin/python3", required = FALSE)
 #reticulate::use_virtualenv("/home/fpsanz/Rython")
@@ -331,7 +332,7 @@ observeEvent(input$filemodel, {
   if(is.null(filepath)){return(NULL)}
   imagenNew$clf = loadModel(filepath$datapath)
   cargarmodelo$ok <- TRUE #
-  B = classImage(imagenNew)
+  B = classModel(imagenNew)
   imagenNew$B = B
   clf$ok <- TRUE #
   BR <- py_2_R_imageBW(B)

@@ -21,6 +21,7 @@ from skimage import segmentation
 from skimage.feature import peak_local_max
 from scipy import stats
 import math
+from joblib import Parallel, delayed
 
 
 class Imagen:
@@ -204,18 +205,26 @@ def parallelizeFunction(param):
     return pr[0]
 
 
+# def classImage(imagen):
+#     global imageng  # esto es para que parallelizeFunction pueda acceder a la imagen
+#     imageng = imagen
+#     a = range(imagen.imageRGB.shape[0])
+#     b = range(imagen.imageRGB.shape[1])
+#     paramlist = list(itertools.product(a, b))
+#     numCores = math.ceil(_getThreads()/2)
+#     pool = mp.Pool(processes=numCores)
+#     res = pool.map(parallelizeFunction, paramlist)
+#     A = np.array(res)
+#     B = np.reshape(A, (imagen.imageRGB.shape[0], imagen.imageRGB.shape[1]))
+#     return B
+
 def classImage(imagen):
-    global imageng  # esto es para que parallelizeFunction pueda acceder a la imagen
-    imageng = imagen
-    a = range(imagen.imageRGB.shape[0])
-    b = range(imagen.imageRGB.shape[1])
-    paramlist = list(itertools.product(a, b))
-    numCores = math.ceil(_getThreads()/2)
-    pool = mp.Pool(processes=numCores)
-    res = pool.map(parallelizeFunction, paramlist)
-    A = np.array(res)
-    B = np.reshape(A, (imagen.imageRGB.shape[0], imagen.imageRGB.shape[1]))
-    return B
+    im = np.dstack((imagen.imageRGB, imagen.imageCIE))
+    im = np.reshape(im, ((imagen.imageRGB.shape[0] * imagen.imageRGB.shape[1]), 6))
+    clf = imagen.clf
+    B = clf.predict(im)
+    B = np.reshape(B, (imagen.imageRGB.shape[0], imagen.imageRGB.shape[1]) )
+    return(B)
 
 
 def measureArea(imagen):
@@ -311,11 +320,20 @@ def loadModel(filename):
     return(clf)
 
 def classModel(imagen):
+    cores = [10,9,8,7,6,5,4,3,2,1]
+    clf = imagen.clf
     im = np.dstack((imagen.imageRGB, imagen.imageCIE))
     im = np.reshape(im, ((imagen.imageRGB.shape[0] * imagen.imageRGB.shape[1]), 6))
-    clf = imagen.clf
-    B = clf.predict(im)
-    B = np.reshape(B, (imagen.imageRGB.shape[0], imagen.imageRGB.shape[1]) )
+    for i in cores:
+        if( (im.shape[0] % i) == 0):
+            core = i
+            break
+    imag = np.split(im, core)
+    parallel = Parallel(n_jobs=core)
+    res = parallel(delayed(clf.predict)(imag[i]) for i in range(core))
+    res = np.concatenate(res)
+    #B = clf.predict(im)
+    B = np.reshape(res, (imagen.imageRGB.shape[0], imagen.imageRGB.shape[1]) )
     return(B)
 
 

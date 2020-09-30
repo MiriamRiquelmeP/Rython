@@ -321,16 +321,22 @@ observeEvent(input$saveModel,{
 # cargar modelo ###########################
 output$Model <- renderUI({
   validate(need(input$option=="opt2", ""))
-   fileInput("filemodel",
-             "Select model file",
-             placeholder = "model")
+  pickerInput(
+      inputId = "filemodel",
+      label = "Select model algorithm",
+      choices = list( "Knn" = "knnModel", "SVM" = "svmModel",
+                      "Rand.Forest"="rfModel","Naive Bayes"="nbModel",
+                      "Neural Network"="nnModel"),
+      options = list(title = "Option ..."),
+      selected = NULL )
  })
 
 
 observeEvent(input$filemodel, {
+  validate(need( input$filemodel !="", ""))
   filepath <- input$filemodel
   if(is.null(filepath)){return(NULL)}
-  imagenNew$clf = loadModel(filepath$datapath)
+  imagenNew$clf = loadModel(paste0("./models/",filepath))
   cargarmodelo$ok <- TRUE #
   B = classModel(imagenNew)
   imagenNew$B = B

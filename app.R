@@ -179,7 +179,7 @@ output$pickerOption <- renderUI({
       inputId = "option",
       label = "Choose the option",
       choices = list( "Manual train" = "opt1",
-                      "Train from model" = "opt2"),
+                      "Pre-trained model" = "opt2"),
       options = list(title = "Option ..."),
       selected = NULL )
 })

@@ -224,7 +224,6 @@ def measureArea(imagen):
     label = measure.label(dropsFiltered, connectivity=1, background=0)
     imagen.set_label(label)
     watershed(imagen)
-
     props2 = measure.regionprops(imagen.wtshed)
     imagen.set_properties(props2)
     return

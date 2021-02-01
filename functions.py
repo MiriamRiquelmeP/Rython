@@ -22,7 +22,7 @@ from skimage.feature import peak_local_max
 from scipy import stats
 import math
 from joblib import Parallel, delayed
-
+from skimage.exposure import match_histograms
 
 class Imagen:
     def __init__(self, image):
@@ -118,8 +118,12 @@ def _getThreads():
         return (int)(os.popen('grep -c cores /proc/cpuinfo').read())
      
 def cargarImagen(imagen, filename):
+    rawImage = io.imread(filename)
+    reference = io.imread("images/reference.jpg")
+    matched = match_histograms(rawImage, reference, multichannel = True)
     imagen.imageRGB = io.imread(filename)
     imagen.imageCIE = color.rgb2lab(imagen.imageRGB)
+    del rawImage
 
 def showImage(rgbimagen):
     plt.imshow(rgbimagen)
@@ -204,20 +208,6 @@ def parallelizeFunction(param):
     pr = imageng.clf.predict([predecir])
     return pr[0]
 
-
-# def classImage(imagen):
-#     global imageng  # esto es para que parallelizeFunction pueda acceder a la imagen
-#     imageng = imagen
-#     a = range(imagen.imageRGB.shape[0])
-#     b = range(imagen.imageRGB.shape[1])
-#     paramlist = list(itertools.product(a, b))
-#     numCores = math.ceil(_getThreads()/2)
-#     pool = mp.Pool(processes=numCores)
-#     res = pool.map(parallelizeFunction, paramlist)
-#     A = np.array(res)
-#     B = np.reshape(A, (imagen.imageRGB.shape[0], imagen.imageRGB.shape[1]))
-#     return B
-
 def classImage(imagen):
     im = np.dstack((imagen.imageRGB, imagen.imageCIE))
     im = np.reshape(im, ((imagen.imageRGB.shape[0] * imagen.imageRGB.shape[1]), 6))
@@ -232,10 +222,9 @@ def measureArea(imagen):
     dropsFiltered = morphology.remove_small_objects(label, 500, 1)
     dropsFiltered[dropsFiltered != 0] = 1
     label = measure.label(dropsFiltered, connectivity=1, background=0)
-    #props = measure.regionprops(label)
-    # print(props[1].area, props[1].label)
     imagen.set_label(label)
     watershed(imagen)
+
     props2 = measure.regionprops(imagen.wtshed)
     imagen.set_properties(props2)
     return
@@ -332,7 +321,6 @@ def classModel(imagen):
     parallel = Parallel(n_jobs=core)
     res = parallel(delayed(clf.predict)(imag[i]) for i in range(core))
     res = np.concatenate(res)
-    #B = clf.predict(im)
     B = np.reshape(res, (imagen.imageRGB.shape[0], imagen.imageRGB.shape[1]) )
     return(B)
 

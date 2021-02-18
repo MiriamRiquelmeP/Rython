@@ -1,0 +1,24 @@
+{
+    "id": "870CDB18",
+    "path": "/datos/repos/Rython/flowchart/app.R",
+    "project_path": "app.R",
+    "type": "r_source",
+    "hash": "2853710103",
+    "contents": "",
+    "dirty": false,
+    "created": 1590565092608.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "cursorPosition": "162,4",
+        "scrollLine": "140"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1590663141,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1590663141113,
+    "read_only": false,
+    "read_only_alternatives": []
+}

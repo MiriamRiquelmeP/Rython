@@ -1,0 +1,27 @@
+{
+    "id": "FD7C8286",
+    "path": "/datos/repos/Rython/app.R",
+    "project_path": "app.R",
+    "type": "r_source",
+    "hash": "3279938106",
+    "contents": "",
+    "dirty": false,
+    "created": 1591767957575.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "cursorPosition": "185,35",
+        "scrollLine": "168",
+        "docOutlineVisible": "1",
+        "Source": "Source",
+        "docOutlineSize": "196"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1613645101,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1613645101434,
+    "read_only": false,
+    "read_only_alternatives": []
+}

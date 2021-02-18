@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<style>body{background-color:white;}</style>
+<script src="lib/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+<script src="lib/viz-1.8.2/viz.js"></script>
+<link href="lib/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="lib/grViz-binding-1.0.6.1/grViz.js"></script>
+
+</head>
+<body>
+<div id="htmlwidget_container">
+  <div id="htmlwidget-f7647f1a59cd0c3dc856" style="width:960px;height:500px;" class="grViz html-widget"></div>
+</div>
+<script type="application/json" data-for="htmlwidget-f7647f1a59cd0c3dc856">{"x":{"diagram":"\ndigraph a_nice_graph {\n\ngraph [splines=ortho, bgcolor=\"#ecf0f5\",nodesep=0.5, ratio=1.5]\n\n\nnode[fontsize=20]\n\nnode[fillcolor=\"blue\", style=filled, label=\"Load Image\"]\na\nnode[fillcolor=\"blue\", style=filled, label=\"Manual train\"]\nb\nnode[fillcolor=\"blue\", style=filled, label=\"Train from model\"]\nc\nnode[fillcolor=\"blue\", style=filled, label=\"Load feature vector\"]\nd\nnode[fillcolor=\"blue\", style=filled, label=\"Load fitted model\"]\ne\nnode[fillcolor=\"blue\", style=filled, label=\"Mark points\"]\nf\nnode[fillcolor=\"blue\", style=filled, label=\"Generate feature vector\"]\ng\nnode[fillcolor=\"blue\", style=filled, label=\"Select algorithm\"]\nh\nnode[fillcolor=\"blue\", style=filled, label=\"Train model\"]\ni\nnode[fillcolor=\"blue\", style=filled, label=\"Classify image\"]\nj\nnode[fillcolor=\"blue\", style=filled, label=\"View results\"]\nk\nnode[fillcolor=\"blue\", style=filled, label=\"Save feature vector\", shape=record]\nl\nnode[fillcolor=\"blue\", style=filled, label=\"Save model\", shape=record]\nm\n\n# edge definitions with the node IDs\na -> {b,c}\nc -> {d,e}\nb -> f\nf -> g\ng -> h\nh -> i\ni -> j\nj -> k\ng -> l [style=dashed, color=grey]\ni -> m [style=dashed, color=grey]\nd -> h\ne -> j\n{rank=same; b;c}\n{rank=same; d;e}\n{rank=same; l;g} \n{rank=same; m;i}\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<script type="application/htmlwidget-sizing" data-for="htmlwidget-f7647f1a59cd0c3dc856">{"viewer":{"width":450,"height":350,"padding":15,"fill":true},"browser":{"width":960,"height":500,"padding":40,"fill":false}}</script>
+</body>
+</html>

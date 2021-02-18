@@ -1,0 +1,73 @@
+library(DiagrammeR)
+
+kk <- "
+strict digraph a_nice_graph {
+
+graph [splines=ortho, bgcolor='#ecf0f5',nodesep=0.5, ratio=1.5]
+
+node[fillcolor='@@1', style=filled, label='Load Image']
+a
+node[fillcolor='@@2', style=filled, label='Manual train']
+b
+node[fillcolor='@@3', style=filled, label='Train from model']
+c
+node[fillcolor='@@4', style=filled, label='Load feature vector']
+d
+node[fillcolor='@@5', style=filled, label='Load fitted model']
+e
+node[fillcolor='@@6', style=filled, label='Mark points']
+f
+node[fillcolor='@@7', style=filled, label='Generate feature vector']
+g
+node[fillcolor='@@8', style=filled, label='Select algorithm']
+h
+node[fillcolor='@@9', style=filled, label='Train model']
+i
+node[fillcolor='@@10', style=filled, label='Classify image']
+j
+node[fillcolor='@@11', style=filled, label='View results']
+k
+node[fillcolor='@@12', style=filled, label='Save feature vector', shape=record]
+l
+node[fillcolor='@@13', style=filled, label='Save model', shape=record]
+m
+
+# edge definitions with the node IDs
+a -> {b,c}
+c -> {d,e}
+b -> f
+f -> g
+g -> h
+h -> i
+i -> j
+j -> k
+g -> l [style=dashed, color=grey]
+i -> m [style=dashed, color=grey]
+d -> h
+e -> j
+{rank=same; b;c}
+{rank=same; d;e}
+{rank=same; l;g} 
+{rank=same; m;i}
+}
+"
+qq <- paste0(
+    "[1]: ",col1,
+    "\n[2]: ",col2,
+    "\n[3]: ",col3,
+    "\n[4]: ",col4,
+    "\n[5]: ",col5,
+    "\n[6]: ",col6,
+    "\n[7]: ",col6,
+    "\n[8]: ",col8,
+    "\n[9]: ",col9,
+    "\n[10]: ",col10,
+    "\n[11]: ",col11,
+    "\n[12]: ",col12,
+    "\n[13]: ",col13)
+
+k <- c(kk, qq )  
+grViz(k)
+
+
+

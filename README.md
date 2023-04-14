@@ -52,5 +52,3 @@ pip3 install itertools
 pip3 install multiprocessing
 pip3 install scipy
 ```
-
-Alguno puede ser que ya esté y que falte alguno, si peta se mira el que falta
